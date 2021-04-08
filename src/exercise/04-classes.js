@@ -10,78 +10,139 @@ import * as React from 'react'
 // 🦉 You've learned all the hooks you need to know to refactor this Board
 // component to hooks. So, let's make it happen!
 
-class Board extends React.Component {
-  state = {
-    squares:
-      JSON.parse(window.localStorage.getItem('squares')) || Array(9).fill(null),
-  }
+function Board() {
+  const [squares, setSquares] = React.useState(
+    () =>
+      JSON.parse(window.localStorage.getItem('squares2')) ||
+      Array(9).fill(null),
+  )
 
-  selectSquare(square) {
-    const {squares} = this.state
-    const nextValue = calculateNextValue(squares)
+  React.useEffect(() => {
+    window.localStorage.setItem('squares2', JSON.stringify(squares))
+  }, [squares])
+
+  const nextValue = calculateNextValue(squares)
+  const winner = calculateWinner(squares)
+  let status = calculateStatus(winner, squares, nextValue)
+
+  function selectSquare(square) {
     if (calculateWinner(squares) || squares[square]) {
       return
     }
     const squaresCopy = [...squares]
     squaresCopy[square] = nextValue
-    this.setState({squares: squaresCopy})
-  }
-  renderSquare = i => (
-    <button className="square" onClick={() => this.selectSquare(i)}>
-      {this.state.squares[i]}
-    </button>
-  )
-
-  restart = () => {
-    this.setState({squares: Array(9).fill(null)})
-    this.updateLocalStorage()
+    setSquares(squaresCopy)
   }
 
-  componentDidMount() {
-    this.updateLocalStorage()
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.squares !== this.state.squares) {
-      this.updateLocalStorage()
-    }
-  }
-
-  updateLocalStorage() {
-    window.localStorage.setItem('squares', JSON.stringify(this.state.squares))
-  }
-
-  render() {
-    const {squares} = this.state
-    const nextValue = calculateNextValue(squares)
-    const winner = calculateWinner(squares)
-    let status = calculateStatus(winner, squares, nextValue)
-
+  function renderSquare(squareIndex) {
     return (
-      <div>
-        <div className="status">{status}</div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-        <button className="restart" onClick={this.restart}>
-          restart
-        </button>
-      </div>
+      <button className="square" onClick={() => selectSquare(squareIndex)}>
+        {squares[squareIndex]}
+      </button>
     )
   }
+
+  function restart() {
+    setSquares(Array(9).fill(null))
+  }
+
+  return (
+    <div>
+      <div className="status">{status}</div>
+      <div className="board-row">
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
+      </div>
+      <div className="board-row">
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+      </div>
+      <div className="board-row">
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+      </div>
+      <button className="restart" onClick={() => restart()}>
+        restart
+      </button>
+    </div>
+  )
 }
+
+// class Board extends React.Component {
+//   state = {
+//     squares:
+//       JSON.parse(window.localStorage.getItem('squares')) || Array(9).fill(null),
+//   }
+
+//   selectSquare(square) {
+//     const {squares} = this.state
+//     const nextValue = calculateNextValue(squares)
+//     if (calculateWinner(squares) || squares[square]) {
+//       return
+//     }
+//     const squaresCopy = [...squares]
+//     squaresCopy[square] = nextValue
+//     this.setState({squares: squaresCopy})
+//   }
+//   renderSquare = i => (
+//     <button className="square" onClick={() => this.selectSquare(i)}>
+//       {this.state.squares[i]}
+//     </button>
+//   )
+
+//   restart = () => {
+//     this.setState({squares: Array(9).fill(null)})
+//     this.updateLocalStorage()
+//   }
+
+//   componentDidMount() {
+//     this.updateLocalStorage()
+//   }
+
+//   componentDidUpdate(prevProps, prevState) {
+//     if (prevState.squares !== this.state.squares) {
+//       this.updateLocalStorage()
+//     }
+//   }
+
+//   updateLocalStorage() {
+//     window.localStorage.setItem('squares', JSON.stringify(this.state.squares))
+//   }
+
+//   render() {
+//     const {squares} = this.state
+//     const nextValue = calculateNextValue(squares)
+//     const winner = calculateWinner(squares)
+//     let status = calculateStatus(winner, squares, nextValue)
+
+//     return (
+//       <div>
+//         <div className="status">{status}</div>
+//         <div className="board-row">
+//           {this.renderSquare(0)}
+//           {this.renderSquare(1)}
+//           {this.renderSquare(2)}
+//         </div>
+//         <div className="board-row">
+//           {this.renderSquare(3)}
+//           {this.renderSquare(4)}
+//           {this.renderSquare(5)}
+//         </div>
+//         <div className="board-row">
+//           {this.renderSquare(6)}
+//           {this.renderSquare(7)}
+//           {this.renderSquare(8)}
+//         </div>
+//         <button className="restart" onClick={this.restart}>
+//           restart
+//         </button>
+//       </div>
+//     )
+//   }
+// }
 
 function Game() {
   return (
